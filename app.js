@@ -6,8 +6,11 @@ import { SessionManager } from '@vk-io/session';
 import readline from 'readline';
 import read  from 'fs';
 import { MessageContext } from 'vk-io';
+
 // import { pg } from 'pg';
 // const callbackService = new CallbackService();
+
+
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
@@ -42,35 +45,15 @@ let first_group_id = obj_token.first_group_id;
 let token = obj_token.token;
 
 
-console.log(token); 
-// console.log(dirname());
-async function run() {
-	// const response = await direct.run();
-
-	// console.log('Token:', response.token);
-	// console.log('Expires:', response.expires);
-
-	// console.log('Email:', response.email);
-	// console.log('User ID:', response.userId);
 
 
-	const vk = new VK({
-		// token: response.token
-		token: token
-	});
-
-
-	// const answer = readline.createInterface({
-	// 	input: process.stdin,
-	// 	output: process.stdout
-	// })
-
-	// const b = answer.question('Who are you?', name => {
-	// 	console.log(`Hey there ${name}!`);
-	// 	answer.close();
-	// });
-	// console.log(b)
-
+async function groupedit(vk) {
+	await vk.api.groups.edit({
+		group_id: first_group_id,
+		title: "愚かな名前達の墓地"
+	})
+}
+async function getmessage(vk) {
 	let lstMessages = await vk.api.messages.get({
 		// count: 100,
 		count: 200,
@@ -80,85 +63,121 @@ async function run() {
 		preview_length: 0
 
 	});
-	console.log(lstMessages);
-	await vk.api.messages.send({
+}
+async function sendmessage(vk, id, message) {
+	let resutl = await vk.api.messages.send({
 		// peer_id: 2000000000 + 15,
 		// peer_id: 326813811,
-		peer_id: 2000000000 + 124,
+		// peer_id: 2000000000 + 124,
+		peer_id: id,
 		random_id: getRandomId(),
 		
-		message: 'Hello!'
+		message: message
 	})
+}
+async function getgroups(vk) {
+	let lstusersgroup = await vk.api.groups.get({
+		extended: 1,
+		
+	})
+}
+async function getfriends(vk) {
+	let lstmyfriends = await vk.api.friends.get({
+			
+	})
+}
+async function getchatusers(vk, id) {
+	let idUsersMessage = await vk.api.messages.getChatUsers({
+		chat_id: id,
+	})
+	return idUsersMessage;
+}
+async function getsettings(vk, group_id) {
+	let groupsSettings = await vk.api.groups.getSettings({
+		group_id: group_id
+	})
+	return groupsSettings;
+}
+async function setstatus(vk) {
 	await vk.api.status.set({
 		group_id: first_group_id,
 		text: `(今は${new Date().getHours()}時だ) Now ${Date.now()} seconds`
 	})
-	// Orokana namae-tachi bochi.
-	await vk.api.groups.edit({
-		group_id: first_group_id,
-		title: "愚かな名前達の墓地"
-	})
-	let res = await vk.api.groups.get({
-		extended: 1,
-		
-	})
-	let lstMyFriends = await vk.api.friends.get({
-		
-	})
-	let idUsersMessage = await vk.api.messages.getChatUsers({
-		chat_id: 98,
-	})
-	let groupsSettings = await vk.api.groups.getSettings({
-		group_id: first_group_id
-	})
-
-
-	console.log(groupsSettings);
-	// console.table(idUsersMessage);
-	// console.table(lstMyFriends['items']);
-
-	// res = res['items']
-	// let p1 = res['id']
-	// let p2 = res['screen_name']
-	// console.log(p1)
-	// res['items'].forEach(element => {
-	// 	console.table({id: element.id, name: element.name, screen_name: element.screen_name}, [id]);
-	// });
-
-	// console.log(res.items)
-	// var result = [];
-	// res = res.items;
-	// delete res.photo_50;
-	// for (var i = 0; i < res.length; i++) {
-	// 		var item = res[i];
-	// 		result.push({id: item.id, screen_name: item.screen_name, name: item.name})
-	// 		// console.log(item);
-	// 		// for (var key in item) {
-	// 		// 	// console.log(item)
-	// 		// 	if (!(key in result)) {
-	// 		// 		// console.log(key);
-	// 		// 		result[key] = [];
-	// 		// 	}
-	// 		// 	result[key].push(item[key]);
-	// 		// }
-	// }
-	// console.table(result);
-	// let result = {res};
-	// Object.keys(res).forEach(e => typeof res[e] === 'id' ? result.push(res[e]) : null);
-	// console.info(result);
-	// for (let i=0;i<res.count;i++)
-	// res['items'].forEach(elem => {
-	// 	// console.group(`${elem['id']} ${elem['screen_name']} ${elem['name']}`);
-	// 	// [id, screen_name, name] = [elem[id, screen_name, name]]
-	// })
-	// let elem = res['items'].filter();
-	// console.log(elem)
-	// console.table([elem['id'], elem['screen_name'], elem['name']]);
-	// console.group()
-	// officialAppCredentials.vkMe.clientId
 }
+console.log(token); 
+// console.log(dirname());
+async function main() {
+	// const response = await direct.run();
+	const vk = new VK({
+		// token: response.token
+		token: token
+	});
+	let tmp = 2000000000;
+	let id = tmp + 15;
+	let delay = 500;
+	let result = await getchatusers(vk, 15);
+	console.log(result);
+	// setInterval(sendmessage, delay, vk, id, "Привет мой друг!");
+	
+}
+main().catch(console.error);
+// console.log('Token:', response.token);
+// console.log('Expires:', response.expires);
+// console.log('Email:', response.email);
+// console.log('User ID:', response.userId);
+// const answer = readline.createInterface({
+// 	input: process.stdin,
+// 	output: process.stdout
+// })
+// const b = answer.question('Who are you?', name => {
+// 	console.log(`Hey there ${name}!`);
+// 	answer.close();
+// });
+// console.log(b)
+// Orokana namae-tachi bochi.
+// console.table(idUsersMessage);
+// console.table(lstMyFriends['items']);
+// res = res['items']
+// let p1 = res['id']
+// let p2 = res['screen_name']
+// console.log(p1)
+// res['items'].forEach(element => {
+// 	console.table({id: element.id, name: element.name, screen_name: element.screen_name}, [id]);
+// });
+// console.log(res.items)
+// var result = [];
+// res = res.items;
+// delete res.photo_50;
+// for (var i = 0; i < res.length; i++) {
+// 		var item = res[i];
+// 		result.push({id: item.id, screen_name: item.screen_name, name: item.name})
+// 		// console.log(item);
+// 		// for (var key in item) {
+// 		// 	// console.log(item)
+// 		// 	if (!(key in result)) {
+// 		// 		// console.log(key);
+// 		// 		result[key] = [];
+// 		// 	}
+// 		// 	result[key].push(item[key]);
+// 		// }
+// }
+// console.table(result);
+// let result = {res};
+// Object.keys(res).forEach(e => typeof res[e] === 'id' ? result.push(res[e]) : null);
+// console.info(result);
+// for (let i=0;i<res.count;i++)
+// res['items'].forEach(elem => {
+// 	// console.group(`${elem['id']} ${elem['screen_name']} ${elem['name']}`);
+// 	// [id, screen_name, name] = [elem[id, screen_name, name]]
+// })
+// let elem = res['items'].filter();
+// console.log(elem)
+// console.table([elem['id'], elem['screen_name'], elem['name']]);
+// console.group()
+// officialAppCredentials.vkMe.clientId
 
-run().catch(console.error);
+
+
 
 
 
