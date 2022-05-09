@@ -77,19 +77,20 @@ async function getgroups(vk) {
 		
 	})
 }
-async function getfriends(vk, user_id, order, lang=0) {
+async function getfriends(vk, user_id, fields, order, lang=0) {
 	let lstmyfriends = await vk.api.friends.get({
 			user_id: user_id,
+			fields: fields,
 			order: order,
-			fields: 'screen_name,sex,status',
 			lang: lang
 	})
 	return lstmyfriends;
 }
-async function getchatusers(vk, id) {
+async function getchatusers(vk, id, fields, lang='ru') {
 	let idUsersMessage = await vk.api.messages.getChatUsers({
 		chat_id: id,
-		fields: 'id'
+		fields: fields,
+		lang: lang
 	})
 	return idUsersMessage;
 }
@@ -137,11 +138,23 @@ async function main() {
 
 	let status = `(今は${new Date().getHours()}時だ) Now ${Date.now()} seconds`;
 	let title_for_my_group = "愚かな名前達の墓地";
+	let fields = 'screen_name,sex,status';
 
-	let lstFriends = await getfriends(vk, my_uid, 'hints');
-	console.log(lstFriends['items']);
+	// let lstFriends = await getfriends(vk, my_uid, fields 'hints');
+
+
+	let lstmygroup = await getchatusers(vk, 15, fields);
+
+	let tablename = 'mygroup';
+
+	// console.log(lstFriends['items']);
+	// console.log(lstmygroup['items']);
 	// console.log(my_uid);
 	// const client = new pg.Client();
+
+	// console.log(lstmygroup);
+
+
 	const pool = new pg.Pool({
 		user: 'postgres',
 		host: 'localhost',
@@ -152,7 +165,6 @@ async function main() {
 
 	await pool.connect();
 
-	let tablename = 'friends';
 
 	let lastname;
 	let firstname;
@@ -162,8 +174,13 @@ async function main() {
 	let user_status;
 	let sex;
 	let column;
+	// let lst_name = lstmyfriends['items'];
+	let lst_name = lstmygroup;
+	
+	console.log(lstmygroup);
 
-	lstFriends['items'].forEach(element => {
+	
+	lst_name.forEach(element => {
 		lastname = element.last_name;
 		firstname = element.first_name;
 		id_page = element.id;
@@ -179,13 +196,15 @@ async function main() {
 			lastname, 
 			id_page, 
 			screenname,
-			status
+			status,
+			sex
 		) values (
 			'${firstname}', 
 			'${lastname}', 
 			${id_page}, 
 			'${screenname}',
-			'${user_status}'
+			'${user_status}',
+			${sex}
 		);`;
 		
 		let request_update = `
@@ -194,18 +213,17 @@ async function main() {
 		where id_page=${id_page};`
 
 		
-		console.log(request_update);
+		console.log(request_insert);
 
-		// pool.query(request_insert,	(res, err) => {
-		// 	console.log(`result is: ${res}\nError is: ${err}`);
-		// });
+		pool.query(request_insert,	(res, err) => {
+			console.log(`result is: ${res}\nError is: ${err}`);
+		});
 
-		pool.query(request_update);
-		
-		// (res, err) => {
-		// 	console.log(`result is: ${res}\nError is: ${err}`);
-		// });
-
+		/*
+		pool.query(request_insert, (res, err) => {
+			console.log(`result is: ${res}\nError is: ${err}`);
+		});
+*/
 	});
 	/*
 
