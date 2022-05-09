@@ -15,12 +15,11 @@ import pg from 'pg'
 // import { dirname } from 'path';
 import path from 'path';
 // import { nextTick } from 'process';
-const __dirname = path.resolve();
 
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
-console.log(__dirname);
+
 // console.log(dirname.)
 
 
@@ -42,9 +41,7 @@ const direct = new DirectAuthorization({
 });
 */
 
-const obj_token = JSON.parse(read.readFileSync(__dirname + "/token.json"));
-let first_group_id = obj_token.first_group_id;
-let token = obj_token.token;
+
 
 async function groupedit(vk, group_id, title) {
 	await vk.api.groups.edit({
@@ -80,11 +77,14 @@ async function getgroups(vk) {
 		
 	})
 }
-async function getfriends(vk, user_id, order) {
+async function getfriends(vk, user_id, order, lang=0) {
 	let lstmyfriends = await vk.api.friends.get({
 			user_id: user_id,
-			order: order
+			order: order,
+			fields: 'screen_name,sex,status',
+			lang: lang
 	})
+	return lstmyfriends;
 }
 async function getchatusers(vk, id) {
 	let idUsersMessage = await vk.api.messages.getChatUsers({
@@ -109,7 +109,6 @@ async function setstatus(vk, id, text) {
 }
 
 
-
 // console.log(token); 
 // console.log(dirname());
 
@@ -118,6 +117,14 @@ async function setstatus(vk, id, text) {
 
 async function main() {
 	// const response = await direct.run();
+
+	const __dirname = path.resolve();
+	console.log("App running...");
+	const obj_token = JSON.parse(read.readFileSync(__dirname + "/token.json"));
+	const first_group_id = obj_token.first_group_id;
+	const token = obj_token.token;
+	const my_uid = obj_token.my_number_page;
+
 	const vk = new VK({
 		// token: response.token
 		token: token
@@ -131,10 +138,10 @@ async function main() {
 	let status = `(今は${new Date().getHours()}時だ) Now ${Date.now()} seconds`;
 	let title_for_my_group = "愚かな名前達の墓地";
 
-
+	let lstFriends = await getfriends(vk, my_uid, 'hints');
+	console.log(lstFriends['items']);
+	// console.log(my_uid);
 	// const client = new pg.Client();
-
-
 	const pool = new pg.Pool({
 		user: 'postgres',
 		host: 'localhost',
@@ -143,29 +150,74 @@ async function main() {
 		port: 6666,
 	})
 
-
 	await pool.connect();
 
+	let tablename = 'friends';
 
-	// client.query('select * from friends;', (err, res) => {
-	// 	console.log(err, res['rows'])
-	// 	client.end()
-	// })	
+	let lastname;
+	let firstname;
+	let id_page;
+	let screenname;
+	let age;
+	let user_status;
+	let sex;
+	let column;
 
-	// pool.query(`select * from friends;`, (err, res) => {
-	// 	console.log(err, res['rows'])
-	// 	// client.end()
-	// })	
-	// pool.query(`select * from friends;`, (err, res) => {
-	// 	console.log(err, res['rows'])
+	lstFriends['items'].forEach(element => {
+		lastname = element.last_name;
+		firstname = element.first_name;
+		id_page = element.id;
+		screenname = element.screen_name;
+		user_status = element.status;
+		sex = element.sex;
 
-	// })	
-	let tablename = "friends";
-	let lastname = "Арамилев";
-	let firstname = "Захар";
-	let id = 2;
-	let screenname = "bigBrother";
-	let age = 234;
+		
+		
+		let request_insert = `
+		insert into ${tablename} (
+			firstname, 
+			lastname, 
+			id_page, 
+			screenname,
+			status
+		) values (
+			'${firstname}', 
+			'${lastname}', 
+			${id_page}, 
+			'${screenname}',
+			'${user_status}'
+		);`;
+		
+		let request_update = `
+		update ${tablename} 
+		set sex=${sex} 
+		where id_page=${id_page};`
+
+		
+		console.log(request_update);
+
+		// pool.query(request_insert,	(res, err) => {
+		// 	console.log(`result is: ${res}\nError is: ${err}`);
+		// });
+
+		pool.query(request_update);
+		
+		// (res, err) => {
+		// 	console.log(`result is: ${res}\nError is: ${err}`);
+		// });
+
+	});
+	/*
+
+
+
+
+
+	
+
+
+
+
 	let request = `
 	insert into ${tablename} (
 		firstname, 
@@ -188,6 +240,8 @@ async function main() {
 	// CREATE TABLE student(id SERIAL PRIMARY KEY, firstname TEXT, lastname TEXT, age INT NOT NULL, address VARCHAR(255), email VARCHAR(50));
 	
 	pool.end();		
+*/
+	
 	// await vk.updates.start();
 	// vk.updates.startPolling();
 	// while (true) {
