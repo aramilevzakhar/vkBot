@@ -108,13 +108,18 @@ async function setstatus(vk, id, text) {
 
 	return result;
 }
+async function getPollConnection() {
+	const pool = new pg.Pool({
+		user: 'postgres',
+		host: 'localhost',
+		database: 'postgres',
+		password: 'anime',
+		port: 6666,
+	})
+	pool.connect();
+	return pool;
 
-
-// console.log(token); 
-// console.log(dirname());
-
-
-
+}
 
 async function main() {
 	// const response = await direct.run();
@@ -130,6 +135,11 @@ async function main() {
 		// token: response.token
 		token: token
 	});
+
+
+
+
+	
 	let tmp = 2000000000;
 	// let id = tmp + 15;
 	let delay = 500;
@@ -143,9 +153,9 @@ async function main() {
 	// let lstFriends = await getfriends(vk, my_uid, fields 'hints');
 
 
-	let lstmygroup = await getchatusers(vk, 15, fields);
+	let lstmygroup = await getchatusers(vk, 121, fields);
 
-	let tablename = 'mygroup';
+
 
 	// console.log(lstFriends['items']);
 	// console.log(lstmygroup['items']);
@@ -155,16 +165,11 @@ async function main() {
 	// console.log(lstmygroup);
 
 
-	const pool = new pg.Pool({
-		user: 'postgres',
-		host: 'localhost',
-		database: 'postgres',
-		password: 'anime',
-		port: 6666,
-	})
+	const pool = await getPollConnection();
 
-	await pool.connect();
 
+
+	let tablename = 'krita_chat';
 
 	let lastname;
 	let firstname;
@@ -179,7 +184,7 @@ async function main() {
 	
 	console.log(lstmygroup);
 
-	
+
 	lst_name.forEach(element => {
 		lastname = element.last_name;
 		firstname = element.first_name;
@@ -223,42 +228,10 @@ async function main() {
 		pool.query(request_insert, (res, err) => {
 			console.log(`result is: ${res}\nError is: ${err}`);
 		});
-*/
-	});
-	/*
-
-
-
-
-
-	
-
-
-
-
-	let request = `
-	insert into ${tablename} (
-		firstname, 
-		lastname, 
-		id, 
-		screenname, 
-		age) values (
-			'${firstname}', 
-			'${lastname}', 
-			${id}, 
-			'${screenname}', 
-			${age});`
-
-	console.log(request);
-
-	pool.query(request,	(res, err) => {
-		console.log(`result is: ${res}\nError is: ${err}`);
+		*/
 	});
 
-	// CREATE TABLE student(id SERIAL PRIMARY KEY, firstname TEXT, lastname TEXT, age INT NOT NULL, address VARCHAR(255), email VARCHAR(50));
-	
-	pool.end();		
-*/
+
 	
 	// await vk.updates.start();
 	// vk.updates.startPolling();
@@ -335,20 +308,6 @@ main().catch(console.error);
 // console.table([elem['id'], elem['screen_name'], elem['name']]);
 // console.group()
 // officialAppCredentials.vkMe.clientId
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // async function run() {
 // 	// const upload_photo = await vk.api.photos.getWallUploadServer({
