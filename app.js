@@ -123,7 +123,7 @@ async function main() {
 		token: token
 	});
 	let tmp = 2000000000;
-	let id = tmp + 15;
+	// let id = tmp + 15;
 	let delay = 500;
 	// let result = await getchatusers(vk, 15);
 	// console.log(result);
@@ -135,14 +135,16 @@ async function main() {
 	// const client = new pg.Client();
 
 
-	const client = new pg.Client({
+	const pool = new pg.Pool({
 		user: 'postgres',
 		host: 'localhost',
 		database: 'postgres',
 		password: 'anime',
 		port: 6666,
 	})
-	await client.connect();
+
+
+	await pool.connect();
 
 
 	// client.query('select * from friends;', (err, res) => {
@@ -150,14 +152,42 @@ async function main() {
 	// 	client.end()
 	// })	
 
-	client.query('select * from friends;', (err, res) => {
-		console.log(err, res['rows'])
-		// client.end()
-	})	
-	client.query('select * from friends;', (err, res) => {
-		console.log(err, res['rows'])
-		client.end()
-	})	
+	// pool.query(`select * from friends;`, (err, res) => {
+	// 	console.log(err, res['rows'])
+	// 	// client.end()
+	// })	
+	// pool.query(`select * from friends;`, (err, res) => {
+	// 	console.log(err, res['rows'])
+
+	// })	
+	let tablename = "friends";
+	let lastname = "Арамилев";
+	let firstname = "Захар";
+	let id = 2;
+	let screenname = "bigBrother";
+	let age = 234;
+	let request = `
+	insert into ${tablename} (
+		firstname, 
+		lastname, 
+		id, 
+		screenname, 
+		age) values (
+			'${firstname}', 
+			'${lastname}', 
+			${id}, 
+			'${screenname}', 
+			${age});`
+
+	console.log(request);
+
+	pool.query(request,	(res, err) => {
+		console.log(`result is: ${res}\nError is: ${err}`);
+	});
+
+	// CREATE TABLE student(id SERIAL PRIMARY KEY, firstname TEXT, lastname TEXT, age INT NOT NULL, address VARCHAR(255), email VARCHAR(50));
+	
+	pool.end();		
 	// await vk.updates.start();
 	// vk.updates.startPolling();
 	// while (true) {
