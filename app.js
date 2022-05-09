@@ -1,20 +1,20 @@
-import { CallbackService, Context } from 'vk-io';
-import { DirectAuthorization, officialAppCredentials } from '@vk-io/authorization';
+// import { CallbackService, Context } from 'vk-io';
+// import { DirectAuthorization, officialAppCredentials } from '@vk-io/authorization';
 import { getRandomId, VK } from 'vk-io';
-import { SessionManager } from '@vk-io/session';
+// import { SessionManager } from '@vk-io/session';
 // import { readlien } from 'readline';
-import readline from 'readline';
+// import readline from 'readline';
 import read  from 'fs';
-import { MessageContext } from 'vk-io';
+// import { MessageContext } from 'vk-io';
 
 // import { pg } from 'pg';
 // const callbackService = new CallbackService();
+import pg from 'pg'
 
-
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from 'url';
+// import { dirname } from 'path';
 import path from 'path';
-import { nextTick } from 'process';
+// import { nextTick } from 'process';
 const __dirname = path.resolve();
 
 
@@ -41,12 +41,10 @@ const direct = new DirectAuthorization({
 	password: process.env.PASSWORD
 });
 */
+
 const obj_token = JSON.parse(read.readFileSync(__dirname + "/token.json"));
 let first_group_id = obj_token.first_group_id;
 let token = obj_token.token;
-
-
-
 
 async function groupedit(vk, group_id, title) {
 	await vk.api.groups.edit({
@@ -109,8 +107,15 @@ async function setstatus(vk, id, text) {
 
 	return result;
 }
+
+
+
 // console.log(token); 
 // console.log(dirname());
+
+
+
+
 async function main() {
 	// const response = await direct.run();
 	const vk = new VK({
@@ -126,6 +131,33 @@ async function main() {
 	let status = `(今は${new Date().getHours()}時だ) Now ${Date.now()} seconds`;
 	let title_for_my_group = "愚かな名前達の墓地";
 
+
+	// const client = new pg.Client();
+
+
+	const client = new pg.Client({
+		user: 'postgres',
+		host: 'localhost',
+		database: 'postgres',
+		password: 'anime',
+		port: 6666,
+	})
+	await client.connect();
+
+
+	// client.query('select * from friends;', (err, res) => {
+	// 	console.log(err, res['rows'])
+	// 	client.end()
+	// })	
+
+	client.query('select * from friends;', (err, res) => {
+		console.log(err, res['rows'])
+		// client.end()
+	})	
+	client.query('select * from friends;', (err, res) => {
+		console.log(err, res['rows'])
+		client.end()
+	})	
 	// await vk.updates.start();
 	// vk.updates.startPolling();
 	// while (true) {
