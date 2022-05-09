@@ -14,6 +14,7 @@ import { MessageContext } from 'vk-io';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
+import { nextTick } from 'process';
 const __dirname = path.resolve();
 
 
@@ -47,10 +48,10 @@ let token = obj_token.token;
 
 
 
-async function groupedit(vk) {
+async function groupedit(vk, group_id, title) {
 	await vk.api.groups.edit({
-		group_id: first_group_id,
-		title: "愚かな名前達の墓地"
+		group_id: group_id,
+		title: title
 	})
 }
 async function getmessage(vk) {
@@ -81,14 +82,16 @@ async function getgroups(vk) {
 		
 	})
 }
-async function getfriends(vk) {
+async function getfriends(vk, user_id, order) {
 	let lstmyfriends = await vk.api.friends.get({
-			
+			user_id: user_id,
+			order: order
 	})
 }
 async function getchatusers(vk, id) {
 	let idUsersMessage = await vk.api.messages.getChatUsers({
 		chat_id: id,
+		fields: 'id'
 	})
 	return idUsersMessage;
 }
@@ -98,13 +101,15 @@ async function getsettings(vk, group_id) {
 	})
 	return groupsSettings;
 }
-async function setstatus(vk) {
-	await vk.api.status.set({
-		group_id: first_group_id,
-		text: `(今は${new Date().getHours()}時だ) Now ${Date.now()} seconds`
+async function setstatus(vk, id, text) {
+	let result = await vk.api.status.set({
+		group_id: id,
+		text: text
 	})
+
+	return result;
 }
-console.log(token); 
+// console.log(token); 
 // console.log(dirname());
 async function main() {
 	// const response = await direct.run();
@@ -115,11 +120,32 @@ async function main() {
 	let tmp = 2000000000;
 	let id = tmp + 15;
 	let delay = 500;
-	let result = await getchatusers(vk, 15);
-	console.log(result);
+	// let result = await getchatusers(vk, 15);
+	// console.log(result);
+
+	let status = `(今は${new Date().getHours()}時だ) Now ${Date.now()} seconds`;
+	let title_for_my_group = "愚かな名前達の墓地";
+
+	// await vk.updates.start();
+	// vk.updates.startPolling();
+	// while (true) {
+	// 	// console.log('hello')
+	// 	// vk.updates.on('message', (context) => {
+	// 	// 	console.log(context.type);
+	// 	// })
+	// 	vk.updates.on('message', (context, next) => {
+	// 		if (!context.isOutbox) {
+	// 			return;
+	// 		}
+		
+	// 		return next();
+	// 	});
+	// }	
+
 	// setInterval(sendmessage, delay, vk, id, "Привет мой друг!");
 	
 }
+
 main().catch(console.error);
 // console.log('Token:', response.token);
 // console.log('Expires:', response.expires);
