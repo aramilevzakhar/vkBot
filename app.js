@@ -153,7 +153,7 @@ async function main() {
 	// let lstFriends = await getfriends(vk, my_uid, fields 'hints');
 
 
-	let lstmygroup = await getchatusers(vk, 121, fields);
+	// let lstmygroup = await getchatusers(vk, 121, fields);
 
 
 
@@ -180,11 +180,21 @@ async function main() {
 	let sex;
 	let column;
 	// let lst_name = lstmyfriends['items'];
-	let lst_name = lstmygroup;
+	// let lst_name = lstmygroup;
 	
-	console.log(lstmygroup);
+	// console.log(lstmygroup);
 
 
+
+	vk.updates.on('message', (context) => {
+		// context.type // message
+		console.log(context.type);
+		console.log(context.text)
+		// context.subTypes // ['message_new']
+	});
+
+	vk.updates.startPolling();
+	/*
 	lst_name.forEach(element => {
 		lastname = element.last_name;
 		firstname = element.first_name;
@@ -224,13 +234,16 @@ async function main() {
 			console.log(`result is: ${res}\nError is: ${err}`);
 		});
 
-		/*
-		pool.query(request_insert, (res, err) => {
-			console.log(`result is: ${res}\nError is: ${err}`);
-		});
-		*/
-	});
+		
 
+
+		
+		// pool.query(request_insert, (res, err) => {
+		// 	console.log(`result is: ${res}\nError is: ${err}`);
+		// });
+		
+	});
+	*/
 
 	
 	// await vk.updates.start();
