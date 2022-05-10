@@ -155,7 +155,7 @@ async function main() {
 	// let lstFriends = await getfriends(vk, my_uid, fields 'hints');
 
 
-	// let lstmygroup = await getchatusers(vk, 121, fields);
+	// let lstmygroup = await getchatusers(vk, 115, fields);
 
 
 
@@ -171,7 +171,7 @@ async function main() {
 
 
 
-	let tablename = 'krita_chat';
+	let tablename = 'webm_chat';
 
 	let lastname;
 	let firstname;
@@ -187,7 +187,7 @@ async function main() {
 	// console.log(lstmygroup);
 
 
-
+	
 	vk.updates.on('message', (context) => {
 		// context.type // message
 		// console.log(context.type);
@@ -195,13 +195,25 @@ async function main() {
 
 		// if (context.peerId == )
 		console.log(context)
-		if (context.peerId == 2000000015) {
-			setTimeout(sendmessage, 5000, vk, context.peerId, "Hello");
+		if (context.peerId == 2000000115 && context.senderId != my_uid) {
+
+			// console.log(Date.now());
+			vk.api.messages.setActivity ({
+				user_id: -peerId,
+				type: 'typing'
+			});
+			setTimeout(sendmessage, 1000, vk, context.peerId, "How are you&");
+			// vk.updates.stop();
+			// vk.updates.stop
 		}
 		// context.subTypes // ['message_new']
 	});
-
+	// console.log("Hello123");
 	vk.updates.startPolling();
+	
+
+
+	// console.log("")
 	/*
 	lst_name.forEach(element => {
 		lastname = element.last_name;
@@ -275,6 +287,13 @@ async function main() {
 }
 
 main().catch(console.error);
+
+
+
+
+
+
+
 // console.log('Token:', response.token);
 // console.log('Expires:', response.expires);
 // console.log('Email:', response.email);
