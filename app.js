@@ -49,6 +49,8 @@ async function groupedit(vk, group_id, title) {
 		title: title
 	})
 }
+
+
 async function getmessage(vk) {
 	let lstMessages = await vk.api.messages.get({
 		// count: 100,
@@ -91,20 +93,20 @@ async function getchatusers(vk, id, fields, lang='ru') {
 		chat_id: id,
 		fields: fields,
 		lang: lang
-	})
+	});
 	return idUsersMessage;
 }
 async function getsettings(vk, group_id) {
 	let groupsSettings = await vk.api.groups.getSettings({
 		group_id: group_id
-	})
+	});
 	return groupsSettings;
 }
 async function setstatus(vk, id, text) {
 	let result = await vk.api.status.set({
 		group_id: id,
 		text: text
-	})
+	});
 
 	return result;
 }
@@ -188,8 +190,14 @@ async function main() {
 
 	vk.updates.on('message', (context) => {
 		// context.type // message
-		console.log(context.type);
-		console.log(context.text)
+		// console.log(context.type);
+
+
+		// if (context.peerId == )
+		console.log(context)
+		if (context.peerId == 2000000015) {
+			setTimeout(sendmessage, 5000, vk, context.peerId, "Hello");
+		}
 		// context.subTypes // ['message_new']
 	});
 
