@@ -14,6 +14,7 @@ import pg from 'pg'
 // import { fileURLToPath } from 'url';
 // import { dirname } from 'path';
 import path from 'path';
+import { send } from 'process';
 // import { nextTick } from 'process';
 
 
@@ -47,9 +48,14 @@ async function groupedit(vk, group_id, title) {
 	await vk.api.groups.edit({
 		group_id: group_id,
 		title: title
-	})
+	});
 }
-
+async function messages_delete(vk, message_ids, peer_id) {
+	await vk.api.messages.delete({
+		message_ids: message_ids,
+		peer_id: peer_id
+	});
+}
 
 async function getmessage(vk) {
 	let lstMessages = await vk.api.messages.get({
@@ -181,6 +187,8 @@ async function main() {
 	let user_status;
 	let sex;
 	let column;
+
+	let text = '';
 	// let lst_name = lstmyfriends['items'];
 	// let lst_name = lstmygroup;
 	
@@ -188,21 +196,47 @@ async function main() {
 
 
 	
-	vk.updates.on('message', (context) => {
+	vk.updates.on('message', async (context) => {
 		// context.type // message
 		// console.log(context.type);
 
 
 		// if (context.peerId == )
-		console.log(context)
-		if (context.peerId == 2000000115 && context.senderId != my_uid) {
 
+		// console.log(context);
+		if (context.senderId == my_uid || context.senderId == context.peerId) {
+			console.log(context);
+			let message = context.text.split(' ');
+			// console.log(message.slice(' '));
+			if (message[0] == '/crypt') {
+				// message = message[1].toString('base64');
+				// console.log(message);
+				let content = message.slice(1).join(' ');
+				console.log(content);
+				await sendmessage(vk, context.peerId, Buffer.from(content).toString('base64'));
+				await messages_delete(vk, context.id, context.peerId);
+			}
+
+
+
+			console.log("hello helo")
 			// console.log(Date.now());
-			vk.api.messages.setActivity ({
-				user_id: -peerId,
-				type: 'typing'
-			});
-			setTimeout(sendmessage, 1000, vk, context.peerId, "How are you&");
+			// vk.api.messages.setActivity ({
+			// 	user_id: -peerId,
+			// 	type: 'typing'
+			// });4
+			// text = '123';
+			// text = text.toString('base64');
+			// console.log(text);
+			
+			// setTimeout(sendmessage, 1000, vk, context.peerId, "1");
+			// setTimeout(sendmessage, 2000, vk, context.peerId, "2");
+			// setTimeout(sendmessage, 3000, vk, context.peerId, "3?");
+			// setTimeout(sendmessage, 4000, vk, context.peerId, "4");
+			// setTimeout(sendmessage, 5000, vk, context.peerId, "5");
+
+
+
 			// vk.updates.stop();
 			// vk.updates.stop
 		}
