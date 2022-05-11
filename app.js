@@ -191,31 +191,10 @@ async function main() {
 	let column;
 
 	let text = '';
-	// let lst_name = lstmyfriends['items'];
-	// let lst_name = lstmygroup;
-	
-	// console.log(lstmygroup);
-
-	// vk.updates.on('message', async (context, next) => {
-	// 	console.log('Before', context.payload.fwd_messages);
-	// 	console.log('hasForwards', context.hasForwards);
-	// 	console.log('forwards', context.forwards);
-	
-	// 	await context.loadMessagePayload();
-	
-	// 	console.log('After', context.payload.fwd_messages);
-	// 	console.log('hasForwards', context.hasForwards);
-	// 	console.log('forwards', context.forwards);
-	
-	// 	await next();
-	// });
-
 	
 	vk.updates.on('message', async (context, next) => {
-		// context.type // message
-		// console.log(context.type);
 
-
+		console.log(context);
 		// if (context.peerId == )
 		let content;
 		let message;
@@ -232,7 +211,7 @@ async function main() {
 
 				if (context.hasReplyMessage) {
 					await context.loadMessagePayload();
-					console.log('After', context.payload.message);
+					console.log('After', Buffer.from(context.payload.message.text, 'utf-8').toString('hex'));
 					reply_message = context.payload.message.reply_message.text;			
 					await sendmessage(vk, context.peerId, Buffer.from(reply_message).toString('base64'));
 
@@ -257,20 +236,19 @@ async function main() {
 
 				} else {
 					content = message.slice(1).join(' ');
-					await context.loadMessagePayload();
-					console.log('After', context.payload.message);
-					reply_message = context.payload.message.reply_message.text;
 					await sendmessage(vk, context.peerId, Buffer.from(content, 'base64').toString('utf8'));
-
+					await messages_delete(vk, context.id, context.peerId);
 
 				}
 			
+			}
+			if (message[0] == '/setname') {
+				
 			}
 
 
 
 			// vk.updates.stop();
-			// vk.updates.stop
 		}
 		// context.subTypes // ['message_new']
 	});
