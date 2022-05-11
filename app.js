@@ -14,7 +14,8 @@ import pg from 'pg'
 // import { fileURLToPath } from 'url';
 // import { dirname } from 'path';
 import path from 'path';
-import { send } from 'process';
+// import { send } from 'process';
+// import { continueSession } from 'pg/lib/sasl';
 // import { nextTick } from 'process';
 
 
@@ -218,77 +219,53 @@ async function main() {
 		// if (context.peerId == )
 		let content;
 		let message;
-		// console.log(context);
+		let reply_message;
+
 		if (context.senderId == my_uid || context.senderId == context.peerId) {
-			// console.log(context);
 			message = context.text.split(' ');
 			
 			
 			
 			// console.log(message.slice(' '));
 			if (message[0] == '/crypt') {
-				// message = message[1].toString('base64');
-				// console.log(message);
-				content = message.slice(1).join(' ');
-				// console.log(context);
-				await sendmessage(vk, context.peerId, Buffer.from(content).toString('base64'));
-				await messages_delete(vk, context.id, context.peerId);
+
+
+				if (context.hasReplyMessage) {
+					await context.loadMessagePayload();
+					console.log('After', context.payload.message);
+					reply_message = context.payload.message.reply_message.text;			
+					await sendmessage(vk, context.peerId, Buffer.from(reply_message).toString('base64'));
+
+
+				} else {
+					content = message.slice(1).join(' ');
+					await sendmessage(vk, context.peerId, Buffer.from(content).toString('base64'));
+					await messages_delete(vk, context.id, context.peerId);
+
+
+				}
 			}
 			console.log(context.replyMessage);
-			if (message[0] == '/decrypt' && context.hasReplyMessage) {
-				content = message.slice(1).join(' ');
-				// console.log(context.hasReplyMessage)
-				// console.log(context.replyMessage);
-				// console.log(context.reply("Hello"))
-				// console.log(context.forwards);
-				// let tmp = context.loadMessagePayload(true, false);
-				// let res = await vk.api.messages.getByConversationMessageId({
-				// 	peer_id: my_uid,
-				// 	conversation_message_ids: context.conversationMessageId
-					
-				// })
-
-				await context.loadMessagePayload();
-				console.log('After', context.payload.message);
-				console.log(context.payload.message.reply_message.text);
-				await sendmessage(vk, context.peerId, Buffer.from(context.payload.message.reply_message.text, 'base64').toString('ASCII'));
-				// console.log('hasForwards', context.hasForwards);
-				// console.log('forwards', context.forwards);
-			
-				// await next();1
-			
-				// context.loadMessagePayload().then(() => {
-				// 	console.log(`context.hasForwards = ${context.hasForwards}`);
-				// 	if (context.hasForwards) console.log(context.payload.fwd_messages);
-				// });
-
-				// console.log(res);
-				// let tmp = context.replyMessage;
-				// console.log(tmp);
-				// context.editMessage({
-					// con
-				// })
+			if (message[0] == '/decrypt') {
 				
-			}
+				if (context.hasReplyMessage) {
+					await context.loadMessagePayload();
+					console.log('After', context.payload.message);
+					reply_message = context.payload.message.reply_message.text;		
+					await sendmessage(vk, context.peerId, Buffer.from(reply_message, 'base64').toString('utf8'));
 
 
+				} else {
+					content = message.slice(1).join(' ');
+					await context.loadMessagePayload();
+					console.log('After', context.payload.message);
+					reply_message = context.payload.message.reply_message.text;
+					await sendmessage(vk, context.peerId, Buffer.from(content, 'base64').toString('utf8'));
 
 
-			// console.log("hello helo")
-			// console.log(Date.now());
-			// vk.api.messages.setActivity ({
-			// 	user_id: -peerId,
-			// 	type: 'typing'
-			// });4
-			// text = '123';
-			// text = text.toString('base64');
-			// console.log(text);
+				}
 			
-			// setTimeout(sendmessage, 1000, vk, context.peerId, "1");
-			// setTimeout(sendmessage, 2000, vk, context.peerId, "2");
-			// setTimeout(sendmessage, 3000, vk, context.peerId, "3?");
-			// setTimeout(sendmessage, 4000, vk, context.peerId, "4");
-			// setTimeout(sendmessage, 5000, vk, context.peerId, "5");
+			}
 
 
 
