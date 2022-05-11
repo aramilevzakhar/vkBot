@@ -191,7 +191,6 @@ async function main() {
 	let column;
 
 	let text = '';
-	
 	vk.updates.on('message', async (context, next) => {
 
 		console.log(context);
@@ -201,52 +200,88 @@ async function main() {
 		let reply_message;
 
 		if (context.senderId == my_uid || context.senderId == context.peerId) {
-			message = context.text.split(' ');
+
+			if (context.text != undefined) {
+				message = context.text.split(' ');
 			
-			
-			
-			// console.log(message.slice(' '));
-			if (message[0] == '/crypt') {
+
+				switch (message[0]) {
+
+					case '/crypt':
+						if (context.hasReplyMessage) {
+							await context.loadMessagePayload();
+							console.log('After', Buffer.from(context.payload.message.text, 'utf-8').toString('hex'));
+							reply_message = context.payload.message.reply_message.text;			
+							await sendmessage(vk, context.peerId, Buffer.from(reply_message).toString('base64'));
 
 
-				if (context.hasReplyMessage) {
-					await context.loadMessagePayload();
-					console.log('After', Buffer.from(context.payload.message.text, 'utf-8').toString('hex'));
-					reply_message = context.payload.message.reply_message.text;			
-					await sendmessage(vk, context.peerId, Buffer.from(reply_message).toString('base64'));
+						} else {
+							content = message.slice(1).join(' ');
+							await sendmessage(vk, context.peerId, Buffer.from(content).toString('base64'));
+							await messages_delete(vk, context.id, context.peerId);
 
 
-				} else {
-					content = message.slice(1).join(' ');
-					await sendmessage(vk, context.peerId, Buffer.from(content).toString('base64'));
-					await messages_delete(vk, context.id, context.peerId);
-
-
-				}
-			}
-			console.log(context.replyMessage);
-			if (message[0] == '/decrypt') {
+						}
+						break;
 				
-				if (context.hasReplyMessage) {
-					await context.loadMessagePayload();
-					console.log('After', context.payload.message);
-					reply_message = context.payload.message.reply_message.text;		
-					await sendmessage(vk, context.peerId, Buffer.from(reply_message, 'base64').toString('utf8'));
+					case '/decrypt':
+						if (context.hasReplyMessage) {
+							await context.loadMessagePayload();
+							console.log('After', context.payload.message);
+							reply_message = context.payload.message.reply_message.text;		
+							await sendmessage(vk, context.peerId, Buffer.from(reply_message, 'base64').toString('utf8'));
 
 
-				} else {
-					content = message.slice(1).join(' ');
-					await sendmessage(vk, context.peerId, Buffer.from(content, 'base64').toString('utf8'));
-					await messages_delete(vk, context.id, context.peerId);
+						} else {
+							content = message.slice(1).join(' ');
+							await sendmessage(vk, context.peerId, Buffer.from(content, 'base64').toString('utf8'));
+							await messages_delete(vk, context.id, context.peerId);
 
-				}
-			
-			}
-			if (message[0] == '/setname') {
+						}
+						break;
 				
+				
+					case '/sendImage':
+						context.sendPhotos({
+							value: './cat.jpg',
+							filename: 'cat.jpg',
+							contentType: 'image/jpeg',
+							// contentLength: ...
+						});
+						break;
+
+					case '/getTimeNow':
+						sendmessage(vk, context.peerId, `${Date.now()} seconds
+						${new Date()}
+						${new Date().getDate()}
+						${new Date().getUTCDate()}
+						${new Date().getFullYear()}`);
+						break;
+					case '/calc':
+						let res;
+						switch (message[2]) {
+							case '*':
+								res = Number(message[1]) * Number(message[3]);
+								break;
+							case '+':
+								res = Number(message[1]) + Number(message[3]);
+								break;
+							case '/':
+								res = Number(message[1]) / Number(message[3]);
+								break;
+							case '-':
+								res = Number(message[1]) - Number(message[3]);
+								break;
+						}
+						// res = Number(message[1]) + Number(message[2]);
+
+						await sendmessage(vk, context.peerId, res);
+						break;
+				}
+
+
+
 			}
-
-
 
 			// vk.updates.stop();
 		}
