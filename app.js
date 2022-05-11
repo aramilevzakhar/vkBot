@@ -1,6 +1,6 @@
 // import { CallbackService, Context } from 'vk-io';
 // import { DirectAuthorization, officialAppCredentials } from '@vk-io/authorization';
-import { getRandomId, VK } from 'vk-io';
+import { getRandomId, MessageContext, VK } from 'vk-io';
 // import { SessionManager } from '@vk-io/session';
 // import { readlien } from 'readline';
 // import readline from 'readline';
@@ -60,13 +60,14 @@ async function messages_delete(vk, message_ids, peer_id) {
 async function getmessage(vk) {
 	let lstMessages = await vk.api.messages.get({
 		// count: 100,
-		count: 200,
-		offset: 3,
-		filters: 8,
+		// count: 200,
+		// offset: 3,
+		// filters: 8,
 
 		preview_length: 0
 
 	});
+	return lstMessages;
 }
 async function sendmessage(vk, id, message) {
 	let resutl = await vk.api.messages.send({
@@ -194,32 +195,86 @@ async function main() {
 	
 	// console.log(lstmygroup);
 
+	// vk.updates.on('message', async (context, next) => {
+	// 	console.log('Before', context.payload.fwd_messages);
+	// 	console.log('hasForwards', context.hasForwards);
+	// 	console.log('forwards', context.forwards);
+	
+	// 	await context.loadMessagePayload();
+	
+	// 	console.log('After', context.payload.fwd_messages);
+	// 	console.log('hasForwards', context.hasForwards);
+	// 	console.log('forwards', context.forwards);
+	
+	// 	await next();
+	// });
 
 	
-	vk.updates.on('message', async (context) => {
+	vk.updates.on('message', async (context, next) => {
 		// context.type // message
 		// console.log(context.type);
 
 
 		// if (context.peerId == )
-
+		let content;
+		let message;
 		// console.log(context);
 		if (context.senderId == my_uid || context.senderId == context.peerId) {
-			console.log(context);
-			let message = context.text.split(' ');
+			// console.log(context);
+			message = context.text.split(' ');
+			
+			
+			
 			// console.log(message.slice(' '));
 			if (message[0] == '/crypt') {
 				// message = message[1].toString('base64');
 				// console.log(message);
-				let content = message.slice(1).join(' ');
-				console.log(content);
+				content = message.slice(1).join(' ');
+				// console.log(context);
 				await sendmessage(vk, context.peerId, Buffer.from(content).toString('base64'));
 				await messages_delete(vk, context.id, context.peerId);
+			}
+			console.log(context.replyMessage);
+			if (message[0] == '/decrypt' && context.hasReplyMessage) {
+				content = message.slice(1).join(' ');
+				// console.log(context.hasReplyMessage)
+				// console.log(context.replyMessage);
+				// console.log(context.reply("Hello"))
+				// console.log(context.forwards);
+				// let tmp = context.loadMessagePayload(true, false);
+				// let res = await vk.api.messages.getByConversationMessageId({
+				// 	peer_id: my_uid,
+				// 	conversation_message_ids: context.conversationMessageId
+					
+				// })
+
+				await context.loadMessagePayload();
+				console.log('After', context.payload.message);
+				console.log(context.payload.message.reply_message.text);
+				await sendmessage(vk, context.peerId, Buffer.from(context.payload.message.reply_message.text, 'base64').toString('ASCII'));
+				// console.log('hasForwards', context.hasForwards);
+				// console.log('forwards', context.forwards);
+			
+				// await next();1
+			
+				// context.loadMessagePayload().then(() => {
+				// 	console.log(`context.hasForwards = ${context.hasForwards}`);
+				// 	if (context.hasForwards) console.log(context.payload.fwd_messages);
+				// });
+
+				// console.log(res);
+				// let tmp = context.replyMessage;
+				// console.log(tmp);
+				// context.editMessage({
+					// con
+				// })
+				
 			}
 
 
 
-			console.log("hello helo")
+
+			// console.log("hello helo")
 			// console.log(Date.now());
 			// vk.api.messages.setActivity ({
 			// 	user_id: -peerId,
@@ -242,9 +297,10 @@ async function main() {
 		}
 		// context.subTypes // ['message_new']
 	});
-	// console.log("Hello123");
-	vk.updates.startPolling();
 	
+	// console.log("Hello123");
+	// vk.updates.startPolling();
+	vk.updates.start();
 
 
 	// console.log("")
