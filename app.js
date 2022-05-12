@@ -163,7 +163,7 @@ async function main() {
 	// let lstFriends = await getfriends(vk, my_uid, fields 'hints');
 
 
-	// let lstmygroup = await getchatusers(vk, 115, fields);
+
 
 
 
@@ -175,20 +175,9 @@ async function main() {
 	// console.log(lstmygroup);
 
 
-	const pool = await getPollConnection();
 
 
 
-	let tablename = 'webm_chat';
-
-	let lastname;
-	let firstname;
-	let id_page;
-	let screenname;
-	let age;
-	let user_status;
-	let sex;
-	let column;
 
 	let text = '';
 	vk.updates.on('message', async (context, next) => {
@@ -277,6 +266,92 @@ async function main() {
 
 						await sendmessage(vk, context.peerId, res);
 						break;
+					case '/getgovno':
+						const pool = await getPollConnection();
+
+						let tablename = 'status_people';
+						let request_select = `select status from ${tablename} where id=(SELECT floor(random()*((select COUNT(*) from ${tablename})-1+1))+1)`;
+						let res11;
+						// vk.setCaptchaHandler(async ({ src }, retry) => {
+						// 	const response = await fetch(src);
+						// 	const buffer = await response.buffer();
+						
+						// 	const base64Captcha = `data:${response.headers.get('content-type')};base64,${buffer.toString('base64')}`;
+						
+						// 	const key = await myAwesomeCaptchaHandler(base64Captcha);
+						
+						// 	try {
+						// 		await retry(key);
+						
+						// 		console.log('Капча успешно решена');
+						// 	} catch (error) {
+						// 		console.log('Капча неверная');
+						// 	}
+						// });
+						// for (let i=0;i<Number(message[1]);i++) {
+						pool.query(request_select, async (err, res) => {
+							console.log(res);
+							sendmessage(vk, context.peerId, res.rows[0].status);
+						});
+						// }
+						// console.log(res11);
+
+
+						
+						
+						/*
+						let lstusers = await getchatusers(vk, 115, fields);
+
+						let tablename = 'table1';
+
+						let lastname;
+						let firstname;
+						let id_page;
+						let screenname;
+						let age;
+						let user_status;
+						let sex;
+						let column;
+											
+						
+						
+						lstusers.forEach(element => {
+							lastname = element.last_name;
+							firstname = element.first_name;
+							id_page = element.id;
+							screenname = element.screen_name;
+							user_status = element.status;
+							sex = element.sex;
+					
+							
+							let request_insert = `
+							insert into ${tablename} (
+								firstname, 
+								lastname, 
+								id_page, 
+								screenname,
+								status,
+								sex
+							) values (
+								'${firstname}', 
+								'${lastname}', 
+								${id_page}, 
+								'${screenname}',
+								'${user_status}',
+								${sex}
+							);`;
+
+							let request_update = `update ${tablename} set sex=${sex} where id_page=${id_page};`;
+							console.log(request_insert);
+				
+							pool.query(request_insert,	(res, err) => {
+								console.log(`result is: ${res}\nError is: ${err}`);
+							});
+						});
+						*/
+
+
+						break;
 				}
 
 
@@ -285,7 +360,6 @@ async function main() {
 
 			// vk.updates.stop();
 		}
-		// context.subTypes // ['message_new']
 	});
 	
 	// console.log("Hello123");
@@ -305,22 +379,7 @@ async function main() {
 
 		
 		
-		let request_insert = `
-		insert into ${tablename} (
-			firstname, 
-			lastname, 
-			id_page, 
-			screenname,
-			status,
-			sex
-		) values (
-			'${firstname}', 
-			'${lastname}', 
-			${id_page}, 
-			'${screenname}',
-			'${user_status}',
-			${sex}
-		);`;
+
 		
 		let request_update = `
 		update ${tablename} 
