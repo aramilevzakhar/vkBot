@@ -1,5 +1,11 @@
 let tablename = 'status_people';
-
+let firstname = '';
+let lastname = '';
+let id_page;
+let screenname = '';
+let status = '';
+let sex;
+let user_status = '';
 
 let senteins = [
     {1: {"とけいのしゅりはいつできますか": "時計の修理は何時できますか"}},
@@ -12,28 +18,29 @@ let senteins = [
 ];
 
 
-// export let request_insert = `
-//     insert into ${tablename} (
-//         firstname, 
-//         lastname, 
-//         id_page, 
-//         screenname,
-//         status,
-//         sex
-//     ) values (
-//         '${firstname}', 
-//         '${lastname}', 
-//         ${id_page}, 
-//         '${screenname}',
-//         '${user_status}',
-//         ${sex}
-//     );`;
-// export let request_update = `update ${tablename} 
-//     set sex=${sex} 
-//     where id_page=${id_page};`;
-// export let request_select = `select status 
-//     from ${tablename} 
-//     where id = (SELECT floor(random()*(select COUNT(*) from ${tablename}))+1)`;
+export const request_insert = `
+    insert into ${tablename} (
+        firstname, 
+        lastname, 
+        id_page, 
+        screenname,
+        status,
+        sex
+    ) values (
+        '${firstname}', 
+        '${lastname}', 
+        ${id_page}, 
+        '${screenname}',
+        '${user_status}',
+        ${sex}
+    );`;
+    
+export const request_update = `update ${tablename} 
+    set sex=${sex} 
+    where id_page=${id_page};`;
+export const request_select = `select status 
+    from ${tablename} 
+    where id = (SELECT floor(random()*(select COUNT(*) from ${tablename}))+1)`;
     
 // export default request_insert;
 // export default request_update;

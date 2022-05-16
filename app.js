@@ -1,10 +1,11 @@
-import { getRandomId, MessageContext, VK } from 'vk-io';
+import { VK } from 'vk-io';
 import read  from 'fs';
-import {sendmessage} from './functions.js';
-// import { request_select, request_update} from './requests.js';
+import {sendmessage, getchatusers} from './functions.js';
+import { request_select, request_update} from './requests.js';
 import pg from 'pg'
 import path from 'path';
 
+console.log(request_select);
 async function main() {
 	console.log("App running...");
 	const keys = JSON.parse(read.readFileSync(path.resolve() + "/keys.json"));
