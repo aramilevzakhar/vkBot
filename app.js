@@ -1,11 +1,14 @@
 import { VK } from 'vk-io';
 import read  from 'fs';
 import {sendmessage, getchatusers} from './functions.js';
-import { request_select, request_update} from './requests.js';
+import { sentences, request_insert, request_select, request_update} from './requests.js';
 import pg from 'pg'
 import path from 'path';
 
 console.log(request_select);
+console.log(request_update);
+console.log(request_insert);
+
 async function main() {
 	console.log("App running...");
 	const keys = JSON.parse(read.readFileSync(path.resolve() + "/keys.json"));
@@ -105,7 +108,15 @@ async function main() {
 
 						await sendmessage(vk, context.peerId, res);
 						break;
-
+					case '/jp':
+						// await sendmessage(vk, context.peerId, Object.keys(Object.values(senteins)));
+						let text = '';
+						sentences.forEach((i) => {
+							text += Object.keys(Object.values(i)[0]) + " - " + Object.values(Object.values(i)[0])[0] + '\n';
+						})
+						await sendmessage(vk, context.peerId, text);
+						break;
+					
 				}
 
 			}
@@ -117,7 +128,9 @@ async function main() {
 
 }
 
-main().catch(console.error);
+await main()
+	.then(console.log)
+	.catch(console.error);
 
 
 

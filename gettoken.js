@@ -6,8 +6,7 @@ import read from 'fs';
 const callbackService = new CallbackService();
 
 let key = JSON.parse(read.readFileSync(path.resolve() + "/keys.json"));
-// console.log(key.token);
-// console.log(key.login);
+
 const direct = new DirectAuthorization({
 	callbackService,
 
@@ -22,7 +21,7 @@ const direct = new DirectAuthorization({
 
 	// login: process.env.LOGIN,
 	// password: process.env.PASSWORD
-
+	// here you may simple put your login and password
 	login: key.login,
 	password: key.password
 });
